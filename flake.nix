@@ -34,7 +34,7 @@
               gofmt.enable = true;
             };
           };
-          formatter = treefmtEval.config.build.check;
+          formatting = treefmtEval.config.build.check self;
         };
 
         devShell = nixpkgs.legacyPackages.${system}.mkShell {
