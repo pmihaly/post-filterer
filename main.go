@@ -5,7 +5,17 @@ import (
 )
 
 type Post struct {
-	category string
+	Id       string
+	Category string
+}
+
+func NewPost(id, category string) Post {
+	post := Post{
+		Id:       id,
+		Category: category,
+	}
+
+	return post
 }
 
 type PostGroup struct {

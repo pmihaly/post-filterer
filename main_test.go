@@ -25,7 +25,16 @@ func TestBasic(t *testing.T) {
 		posts      []Post
 		want       []Post
 	}{
-		{"no posts", []PostGroup{NewPostGroup("trending", 1.0)}, []Post{}, []Post{}},
+		{"no posts return empty array", []PostGroup{NewPostGroup("trending", 1.0)}, []Post{}, []Post{}},
+		{"single group returns the input array", []PostGroup{NewPostGroup("trending", 1.0)}, []Post{
+			NewPost("ricks-vacation", "trending"),
+			NewPost("lizas-puppy", "trending"),
+			NewPost("theprimagen-shilling-rust", "trending"),
+		}, []Post{
+			NewPost("ricks-vacation", "trending"),
+			NewPost("lizas-puppy", "trending"),
+			NewPost("theprimagen-shilling-rust", "trending"),
+		}},
 	}
 
 	for _, tt := range tests {
