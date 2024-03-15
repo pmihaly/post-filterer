@@ -154,6 +154,7 @@ func main() {
 
 	if err != nil {
 		log.Fatalf("creating mixer failed: %v", err)
+		return
 	}
 
 	posts := []Post{
