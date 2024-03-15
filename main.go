@@ -20,51 +20,51 @@ func NewPost(id, category string) Post {
 	return post
 }
 
-type PostGroup struct {
+type PostWeight struct {
 	PostCategory string
 	Ratio        float64
 }
 
-func NewPostGroup(category string, ratio float64) PostGroup {
-	group := PostGroup{
+func NewPostWeight(category string, ratio float64) PostWeight {
+	weight := PostWeight{
 		PostCategory: category,
 		Ratio:        ratio,
 	}
 
-	return group
+	return weight
 }
 
-func (parentGroup PostGroup) AddChildren(orphans []PostGroup) []PostGroup {
-	childGroups := []PostGroup{}
+func (parentWeight PostWeight) AddChildren(orphans []PostWeight) []PostWeight {
+	childWeights := []PostWeight{}
 
 	for _, orphan := range orphans {
-		category := fmt.Sprintf("%v/%v", parentGroup.PostCategory, orphan.PostCategory)
-		ratio := orphan.Ratio * parentGroup.Ratio
+		category := fmt.Sprintf("%v/%v", parentWeight.PostCategory, orphan.PostCategory)
+		ratio := orphan.Ratio * parentWeight.Ratio
 
-		childGroups = append(childGroups, NewPostGroup(category, ratio))
+		childWeights = append(childWeights, NewPostWeight(category, ratio))
 	}
 
-	return childGroups
+	return childWeights
 }
 
 type PostMixer struct {
-	PostGroups       []PostGroup
+	PostWeights      []PostWeight
 	ratiosByCategory map[string]float64
 }
 
-func NewPostMixer(postGroups []PostGroup) (*PostMixer, error) {
-	if len(postGroups) == 0 {
-		return nil, errors.New("PostMixer has to have at least one post group")
+func NewPostMixer(postWeights []PostWeight) (*PostMixer, error) {
+	if len(postWeights) == 0 {
+		return nil, errors.New("PostMixer has to have at least one post weight")
 	}
 
 	ratiosByCategory := make(map[string]float64)
 
-	for _, group := range postGroups {
-		ratiosByCategory[group.PostCategory] = group.Ratio
+	for _, weight := range postWeights {
+		ratiosByCategory[weight.PostCategory] = weight.Ratio
 	}
 
 	mixer := &PostMixer{
-		PostGroups:       postGroups,
+		PostWeights:      postWeights,
 		ratiosByCategory: ratiosByCategory,
 	}
 
@@ -125,22 +125,22 @@ func (mixer *PostMixer) MixPosts(posts []Post) []Post {
 }
 
 func main() {
-	mixingWeights := []PostGroup{}
+	mixingWeights := []PostWeight{}
 
-	mixingWeights = append(mixingWeights, NewPostGroup("top", 0.2).AddChildren([]PostGroup{
-		NewPostGroup("daily", 0.5),
-		NewPostGroup("weekly", 0.3),
-		NewPostGroup("monthly", 0.2),
+	mixingWeights = append(mixingWeights, NewPostWeight("top", 0.2).AddChildren([]PostWeight{
+		NewPostWeight("daily", 0.5),
+		NewPostWeight("weekly", 0.3),
+		NewPostWeight("monthly", 0.2),
 	})...)
-	mixingWeights = append(mixingWeights, NewPostGroup("trending", 0.2).AddChildren([]PostGroup{
-		NewPostGroup("city", 0.4),
-		NewPostGroup("area", 0.3),
-		NewPostGroup("country", 0.3),
+	mixingWeights = append(mixingWeights, NewPostWeight("trending", 0.2).AddChildren([]PostWeight{
+		NewPostWeight("city", 0.4),
+		NewPostWeight("area", 0.3),
+		NewPostWeight("country", 0.3),
 	})...)
-	mixingWeights = append(mixingWeights, NewPostGroup("promoted", 0.1))
-	mixingWeights = append(mixingWeights, NewPostGroup("following", 0.5).AddChildren([]PostGroup{
-		NewPostGroup("immediate-follow", 0.6),
-		NewPostGroup("follow-of-follow", 0.4),
+	mixingWeights = append(mixingWeights, NewPostWeight("promoted", 0.1))
+	mixingWeights = append(mixingWeights, NewPostWeight("following", 0.5).AddChildren([]PostWeight{
+		NewPostWeight("immediate-follow", 0.6),
+		NewPostWeight("follow-of-follow", 0.4),
 	})...)
 
 	mixer, err := NewPostMixer(mixingWeights)

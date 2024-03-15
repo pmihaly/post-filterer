@@ -5,8 +5,8 @@ import (
 	"testing"
 )
 
-func TestMixerCreationFailsWithNoPostGroups(t *testing.T) {
-	mixer, err := NewPostMixer([]PostGroup{})
+func TestMixerCreationFailsWithNoPostWeights(t *testing.T) {
+	mixer, err := NewPostMixer([]PostWeight{})
 
 	if mixer != nil {
 		t.Errorf("got %v, want %v", mixer, nil)
@@ -20,13 +20,13 @@ func TestMixerCreationFailsWithNoPostGroups(t *testing.T) {
 
 func TestFlatHierarchy(t *testing.T) {
 	var tests = []struct {
-		name       string
-		postGroups []PostGroup
-		posts      []Post
-		want       []Post
+		name        string
+		postWeights []PostWeight
+		posts       []Post
+		want        []Post
 	}{
-		{"no posts return empty array", []PostGroup{NewPostGroup("trending", 1.0)}, []Post{}, []Post{}},
-		{"single group returns the input array", []PostGroup{NewPostGroup("trending", 1.0)}, []Post{
+		{"no posts return empty array", []PostWeight{NewPostWeight("trending", 1.0)}, []Post{}, []Post{}},
+		{"single weight returns the input array", []PostWeight{NewPostWeight("trending", 1.0)}, []Post{
 			NewPost("ricks-vacation", "trending"),
 			NewPost("lisas-puppy", "trending"),
 			NewPost("theprimagen-shilling-rust", "trending"),
@@ -35,7 +35,7 @@ func TestFlatHierarchy(t *testing.T) {
 			NewPost("lisas-puppy", "trending"),
 			NewPost("theprimagen-shilling-rust", "trending"),
 		}},
-		{"groups filter out irrelevant categories", []PostGroup{NewPostGroup("trending", 1.0), NewPostGroup("following", 1.0)}, []Post{
+		{"weights filter out irrelevant categories", []PostWeight{NewPostWeight("trending", 1.0), NewPostWeight("following", 1.0)}, []Post{
 			NewPost("ricks-vacation", "following"),
 			NewPost("lisas-puppy", "trending"),
 			NewPost("theprimagen-shilling-rust", "hot"),
@@ -43,7 +43,7 @@ func TestFlatHierarchy(t *testing.T) {
 			NewPost("ricks-vacation", "following"),
 			NewPost("lisas-puppy", "trending"),
 		}},
-		{"mixing by 50-50", []PostGroup{NewPostGroup("trending", 0.5), NewPostGroup("following", 0.5)}, []Post{
+		{"mixing by 50-50", []PostWeight{NewPostWeight("trending", 0.5), NewPostWeight("following", 0.5)}, []Post{
 			NewPost("ricks-vacation", "following"),
 			NewPost("lisas-puppy", "trending"),
 			NewPost("jonass-cold-take", "following"),
@@ -57,7 +57,7 @@ func TestFlatHierarchy(t *testing.T) {
 			NewPost("jonass-cold-take", "following"),
 			NewPost("definetly-a-linux-iso-torrent", "trending"),
 		}},
-		{"mixing should ignore irrelevant posts", []PostGroup{NewPostGroup("trending", 0.5), NewPostGroup("following", 0.5)}, []Post{
+		{"mixing should ignore irrelevant posts", []PostWeight{NewPostWeight("trending", 0.5), NewPostWeight("following", 0.5)}, []Post{
 			NewPost("chatgpt-generated-corporate-bs", "hot"),
 			NewPost("ricks-vacation", "following"),
 			NewPost("lisas-puppy", "trending"),
@@ -78,7 +78,7 @@ func TestFlatHierarchy(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			mixer, err := NewPostMixer(tt.postGroups)
+			mixer, err := NewPostMixer(tt.postWeights)
 
 			if err != nil {
 				t.Fatalf("failed to create mixer: %v", err)
@@ -94,18 +94,18 @@ func TestFlatHierarchy(t *testing.T) {
 }
 
 func TestAddingChildren(t *testing.T) {
-	deepHierarchy := []PostGroup{
-		NewPostGroup("trending", 0.5),
+	deepHierarchy := []PostWeight{
+		NewPostWeight("trending", 0.5),
 	}
 
 	deepHierarchy = append(deepHierarchy,
-		NewPostGroup("following", 0.5).AddChildren([]PostGroup{NewPostGroup("immediate-follow", 0.6), NewPostGroup("follow-of-follow", 0.4)})...,
+		NewPostWeight("following", 0.5).AddChildren([]PostWeight{NewPostWeight("immediate-follow", 0.6), NewPostWeight("follow-of-follow", 0.4)})...,
 	)
 
-	flatHierarchy := []PostGroup{
-		NewPostGroup("trending", 0.5),
-		NewPostGroup("following/immediate-follow", 0.3),
-		NewPostGroup("following/follow-of-follow", 0.2),
+	flatHierarchy := []PostWeight{
+		NewPostWeight("trending", 0.5),
+		NewPostWeight("following/immediate-follow", 0.3),
+		NewPostWeight("following/follow-of-follow", 0.2),
 	}
 
 	if !reflect.DeepEqual(deepHierarchy, flatHierarchy) {
