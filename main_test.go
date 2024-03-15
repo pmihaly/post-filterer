@@ -35,6 +35,14 @@ func TestBasic(t *testing.T) {
 			NewPost("lizas-puppy", "trending"),
 			NewPost("theprimagen-shilling-rust", "trending"),
 		}},
+		{"groups filter out irrelevant categories", []PostGroup{NewPostGroup("trending", 0.4), NewPostGroup("following", 0.6)}, []Post{
+			NewPost("ricks-vacation", "following"),
+			NewPost("lizas-puppy", "trending"),
+			NewPost("theprimagen-shilling-rust", "hot"),
+		}, []Post{
+			NewPost("ricks-vacation", "following"),
+			NewPost("lizas-puppy", "trending"),
+		}},
 	}
 
 	for _, tt := range tests {

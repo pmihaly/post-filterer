@@ -34,6 +34,7 @@ func NewPostGroup(category string, ratio float32) PostGroup {
 
 type PostMixer struct {
 	PostGroups []PostGroup
+	categories map[string]struct{}
 }
 
 func NewPostMixer(postGroups []PostGroup) (*PostMixer, error) {
@@ -41,15 +42,33 @@ func NewPostMixer(postGroups []PostGroup) (*PostMixer, error) {
 		return nil, errors.New("PostMixer has to have at least one post group")
 	}
 
+	categories := make(map[string]struct{})
+
+	for _, group := range postGroups {
+		categories[group.PostCategory] = struct{}{}
+	}
+
 	mixer := &PostMixer{
 		PostGroups: postGroups,
+		categories: categories,
 	}
 
 	return mixer, nil
 }
 
 func (mixer *PostMixer) MixPosts(posts []Post) ([]Post, error) {
-	return posts, nil
+	mixedPosts := []Post{}
+
+	for _, post := range posts {
+		_, shouldIncludePost := mixer.categories[post.Category]
+
+		if shouldIncludePost {
+			mixedPosts = append(mixedPosts, post)
+		}
+
+	}
+
+	return mixedPosts, nil
 }
 
 func main() {
