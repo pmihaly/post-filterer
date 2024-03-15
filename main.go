@@ -124,24 +124,31 @@ func (mixer *PostMixer) MixPosts(posts []Post) []Post {
 	return mixedPosts
 }
 
-func main() {
-	mixingWeights := []PostWeight{}
+func mergeWeights(arrays ...[]PostWeight) []PostWeight {
+	var merged []PostWeight
+	for _, arr := range arrays {
+		merged = append(merged, arr...)
+	}
+	return merged
+}
 
-	mixingWeights = append(mixingWeights, NewPostWeight("top", 0.2).AddChildren([]PostWeight{
-		NewPostWeight("daily", 0.5),
-		NewPostWeight("weekly", 0.3),
-		NewPostWeight("monthly", 0.2),
-	})...)
-	mixingWeights = append(mixingWeights, NewPostWeight("trending", 0.2).AddChildren([]PostWeight{
-		NewPostWeight("city", 0.4),
-		NewPostWeight("area", 0.3),
-		NewPostWeight("country", 0.3),
-	})...)
-	mixingWeights = append(mixingWeights, NewPostWeight("promoted", 0.1))
-	mixingWeights = append(mixingWeights, NewPostWeight("following", 0.5).AddChildren([]PostWeight{
-		NewPostWeight("immediate-follow", 0.6),
-		NewPostWeight("follow-of-follow", 0.4),
-	})...)
+func main() {
+	mixingWeights := mergeWeights(
+		NewPostWeight("top", 0.2).AddChildren([]PostWeight{
+			NewPostWeight("daily", 0.5),
+			NewPostWeight("weekly", 0.3),
+			NewPostWeight("monthly", 0.2),
+		}),
+		NewPostWeight("trending", 0.2).AddChildren([]PostWeight{
+			NewPostWeight("city", 0.4),
+			NewPostWeight("area", 0.3),
+			NewPostWeight("country", 0.3),
+		}), []PostWeight{NewPostWeight("promoted", 0.1)},
+		NewPostWeight("following", 0.5).AddChildren([]PostWeight{
+			NewPostWeight("immediate-follow", 0.6),
+			NewPostWeight("follow-of-follow", 0.4),
+		}),
+	)
 
 	mixer, err := NewPostMixer(mixingWeights)
 
