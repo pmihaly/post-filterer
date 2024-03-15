@@ -4,20 +4,35 @@ import (
 	"errors"
 )
 
-type Post struct{}
-type Category struct{}
-
-type PostMixer struct {
-	Categories []Category
+type Post struct {
+	category string
 }
 
-func NewPostMixer(categories []Category) (*PostMixer, error) {
-	if len(categories) == 0 {
-		return nil, errors.New("PostMixer has to have at least one category")
+type PostGroup struct {
+	PostCategory string
+	Ratio        float32
+}
+
+func NewPostGroup(category string, ratio float32) PostGroup {
+	group := PostGroup{
+		PostCategory: category,
+		Ratio:        ratio,
+	}
+
+	return group
+}
+
+type PostMixer struct {
+	PostGroups []PostGroup
+}
+
+func NewPostMixer(postGroups []PostGroup) (*PostMixer, error) {
+	if len(postGroups) == 0 {
+		return nil, errors.New("PostMixer has to have at least one post group")
 	}
 
 	mixer := &PostMixer{
-		Categories: categories,
+		PostGroups: postGroups,
 	}
 
 	return mixer, nil

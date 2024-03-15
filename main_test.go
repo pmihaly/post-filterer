@@ -5,8 +5,8 @@ import (
 	"testing"
 )
 
-func TestMixerCreationFailsWithNoCategories(t *testing.T) {
-	mixer, err := NewPostMixer([]Category{})
+func TestMixerCreationFailsWithNoPostGroups(t *testing.T) {
+	mixer, err := NewPostMixer([]PostGroup{})
 
 	if mixer != nil {
 		t.Errorf("got %v, want %v", mixer, nil)
@@ -21,16 +21,16 @@ func TestMixerCreationFailsWithNoCategories(t *testing.T) {
 func TestBasic(t *testing.T) {
 	var tests = []struct {
 		name       string
-		categories []Category
+		postGroups []PostGroup
 		posts      []Post
 		want       []Post
 	}{
-		{"no posts", []Category{{}}, []Post{}, []Post{}},
+		{"no posts", []PostGroup{NewPostGroup("trending", 1.0)}, []Post{}, []Post{}},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			mixer, err := NewPostMixer(tt.categories)
+			mixer, err := NewPostMixer(tt.postGroups)
 
 			if err != nil {
 				t.Fatalf("failed to create mixer: %v", err)
@@ -43,7 +43,7 @@ func TestBasic(t *testing.T) {
 			}
 
 			if !reflect.DeepEqual(result, tt.want) {
-				t.Errorf("got %t, want %t", result, tt.want)
+				t.Errorf("got %v, want %v", result, tt.want)
 			}
 		})
 	}
