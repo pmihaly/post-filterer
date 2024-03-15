@@ -84,11 +84,7 @@ func TestFlatHierarchy(t *testing.T) {
 				t.Fatalf("failed to create mixer: %v", err)
 			}
 
-			result, err := mixer.MixPosts(tt.posts)
-
-			if err != nil {
-				t.Fatalf("failed to mix posts: %v", err)
-			}
+			result := mixer.MixPosts(tt.posts)
 
 			if !reflect.DeepEqual(result, tt.want) {
 				t.Errorf("got %v, want %v (lengths of %v and %v)", result, tt.want, len(result), len(tt.want))
