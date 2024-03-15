@@ -35,7 +35,7 @@ func TestBasic(t *testing.T) {
 			NewPost("lisas-puppy", "trending"),
 			NewPost("theprimagen-shilling-rust", "trending"),
 		}},
-		{"groups filter out irrelevant categories", []PostGroup{NewPostGroup("trending", 0.4), NewPostGroup("following", 0.6)}, []Post{
+		{"groups filter out irrelevant categories", []PostGroup{NewPostGroup("trending", 1.0), NewPostGroup("following", 1.0)}, []Post{
 			NewPost("ricks-vacation", "following"),
 			NewPost("lisas-puppy", "trending"),
 			NewPost("theprimagen-shilling-rust", "hot"),
@@ -49,6 +49,23 @@ func TestBasic(t *testing.T) {
 			NewPost("jonass-cold-take", "following"),
 			NewPost("definetly-a-linux-iso-torrent", "trending"),
 			NewPost("this-shouldnt-be-making-into-the-feed-1", "following"),
+			NewPost("this-shouldnt-be-making-into-the-feed-2", "following"),
+			NewPost("this-shouldnt-be-making-into-the-feed-3", "following"),
+		}, []Post{
+			NewPost("ricks-vacation", "following"),
+			NewPost("lisas-puppy", "trending"),
+			NewPost("jonass-cold-take", "following"),
+			NewPost("definetly-a-linux-iso-torrent", "trending"),
+		}},
+		{"mixing should ignore irrelevant posts", []PostGroup{NewPostGroup("trending", 0.5), NewPostGroup("following", 0.5)}, []Post{
+			NewPost("chatgpt-generated-corporate-bs", "hot"),
+			NewPost("ricks-vacation", "following"),
+			NewPost("lisas-puppy", "trending"),
+			NewPost("theprimagen-shilling-rust", "hot"),
+			NewPost("jonass-cold-take", "following"),
+			NewPost("definetly-a-linux-iso-torrent", "trending"),
+			NewPost("this-shouldnt-be-making-into-the-feed-1", "following"),
+			NewPost("useless-infographic-definetly-not-stolen-from-linkedin", "hot"),
 			NewPost("this-shouldnt-be-making-into-the-feed-2", "following"),
 			NewPost("this-shouldnt-be-making-into-the-feed-3", "following"),
 		}, []Post{
