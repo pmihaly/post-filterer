@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"math"
 )
 
 type Post struct {
@@ -20,10 +21,10 @@ func NewPost(id, category string) Post {
 
 type PostGroup struct {
 	PostCategory string
-	Ratio        float32
+	Ratio        float64
 }
 
-func NewPostGroup(category string, ratio float32) PostGroup {
+func NewPostGroup(category string, ratio float64) PostGroup {
 	group := PostGroup{
 		PostCategory: category,
 		Ratio:        ratio,
@@ -33,8 +34,8 @@ func NewPostGroup(category string, ratio float32) PostGroup {
 }
 
 type PostMixer struct {
-	PostGroups []PostGroup
-	categories map[string]struct{}
+	PostGroups       []PostGroup
+	ratiosByCategory map[string]float64
 }
 
 func NewPostMixer(postGroups []PostGroup) (*PostMixer, error) {
@@ -42,30 +43,41 @@ func NewPostMixer(postGroups []PostGroup) (*PostMixer, error) {
 		return nil, errors.New("PostMixer has to have at least one post group")
 	}
 
-	categories := make(map[string]struct{})
+	ratiosByCategory := make(map[string]float64)
 
 	for _, group := range postGroups {
-		categories[group.PostCategory] = struct{}{}
+		ratiosByCategory[group.PostCategory] = group.Ratio
 	}
 
 	mixer := &PostMixer{
-		PostGroups: postGroups,
-		categories: categories,
+		PostGroups:       postGroups,
+		ratiosByCategory: ratiosByCategory,
 	}
 
 	return mixer, nil
 }
 
 func (mixer *PostMixer) MixPosts(posts []Post) ([]Post, error) {
+	postCountsByCategory := make(map[string]int)
+
+	for category, ratio := range mixer.ratiosByCategory {
+		postCountsByCategory[category] = int(math.Ceil(ratio * float64(len(posts))))
+	}
+
 	mixedPosts := []Post{}
 
-	for _, post := range posts {
-		_, shouldIncludePost := mixer.categories[post.Category]
+	for index, post := range posts {
+		maxPostCount, hasCount := postCountsByCategory[post.Category]
 
-		if shouldIncludePost {
-			mixedPosts = append(mixedPosts, post)
+		if !hasCount {
+			continue
 		}
 
+		if index >= maxPostCount {
+			continue
+		}
+
+		mixedPosts = append(mixedPosts, post)
 	}
 
 	return mixedPosts, nil

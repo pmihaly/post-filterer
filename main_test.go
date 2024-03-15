@@ -28,20 +28,34 @@ func TestBasic(t *testing.T) {
 		{"no posts return empty array", []PostGroup{NewPostGroup("trending", 1.0)}, []Post{}, []Post{}},
 		{"single group returns the input array", []PostGroup{NewPostGroup("trending", 1.0)}, []Post{
 			NewPost("ricks-vacation", "trending"),
-			NewPost("lizas-puppy", "trending"),
+			NewPost("lisas-puppy", "trending"),
 			NewPost("theprimagen-shilling-rust", "trending"),
 		}, []Post{
 			NewPost("ricks-vacation", "trending"),
-			NewPost("lizas-puppy", "trending"),
+			NewPost("lisas-puppy", "trending"),
 			NewPost("theprimagen-shilling-rust", "trending"),
 		}},
 		{"groups filter out irrelevant categories", []PostGroup{NewPostGroup("trending", 0.4), NewPostGroup("following", 0.6)}, []Post{
 			NewPost("ricks-vacation", "following"),
-			NewPost("lizas-puppy", "trending"),
+			NewPost("lisas-puppy", "trending"),
 			NewPost("theprimagen-shilling-rust", "hot"),
 		}, []Post{
 			NewPost("ricks-vacation", "following"),
-			NewPost("lizas-puppy", "trending"),
+			NewPost("lisas-puppy", "trending"),
+		}},
+		{"mixing by 50-50", []PostGroup{NewPostGroup("trending", 0.5), NewPostGroup("following", 0.5)}, []Post{
+			NewPost("ricks-vacation", "following"),
+			NewPost("lisas-puppy", "trending"),
+			NewPost("jonass-cold-take", "following"),
+			NewPost("definetly-a-linux-iso-torrent", "trending"),
+			NewPost("this-shouldnt-be-making-into-the-feed-1", "following"),
+			NewPost("this-shouldnt-be-making-into-the-feed-2", "following"),
+			NewPost("this-shouldnt-be-making-into-the-feed-3", "following"),
+		}, []Post{
+			NewPost("ricks-vacation", "following"),
+			NewPost("lisas-puppy", "trending"),
+			NewPost("jonass-cold-take", "following"),
+			NewPost("definetly-a-linux-iso-torrent", "trending"),
 		}},
 	}
 
@@ -60,7 +74,7 @@ func TestBasic(t *testing.T) {
 			}
 
 			if !reflect.DeepEqual(result, tt.want) {
-				t.Errorf("got %v, want %v", result, tt.want)
+				t.Errorf("got %v, want %v (lengths of %v and %v)", result, tt.want, len(result), len(tt.want))
 			}
 		})
 	}
