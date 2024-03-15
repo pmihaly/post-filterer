@@ -5,11 +5,11 @@ import (
 	"testing"
 )
 
-func TestMixerCreationFailsWithNoPostWeights(t *testing.T) {
-	mixer, err := NewPostMixer([]PostWeight{})
+func TestFiltererCreationFailsWithNoPostWeights(t *testing.T) {
+	filterer, err := NewPostFilterer([]PostWeight{})
 
-	if mixer != nil {
-		t.Errorf("got %v, want %v", mixer, nil)
+	if filterer != nil {
+		t.Errorf("got %v, want %v", filterer, nil)
 	}
 
 	if err == nil {
@@ -43,7 +43,7 @@ func TestFlatHierarchy(t *testing.T) {
 			NewPost("ricks-vacation", "following"),
 			NewPost("lisas-puppy", "trending"),
 		}},
-		{"mixing by 50-50", []PostWeight{NewPostWeight("trending", 0.5), NewPostWeight("following", 0.5)}, []Post{
+		{"2 categories split by 50-50", []PostWeight{NewPostWeight("trending", 0.5), NewPostWeight("following", 0.5)}, []Post{
 			NewPost("ricks-vacation", "following"),
 			NewPost("lisas-puppy", "trending"),
 			NewPost("jonass-cold-take", "following"),
@@ -57,7 +57,7 @@ func TestFlatHierarchy(t *testing.T) {
 			NewPost("jonass-cold-take", "following"),
 			NewPost("definetly-a-linux-iso-torrent", "trending"),
 		}},
-		{"mixing should ignore irrelevant posts", []PostWeight{NewPostWeight("trending", 0.5), NewPostWeight("following", 0.5)}, []Post{
+		{"filtering by weights should ignore irrelevant posts", []PostWeight{NewPostWeight("trending", 0.5), NewPostWeight("following", 0.5)}, []Post{
 			NewPost("chatgpt-generated-corporate-bs", "hot"),
 			NewPost("ricks-vacation", "following"),
 			NewPost("lisas-puppy", "trending"),
@@ -78,13 +78,13 @@ func TestFlatHierarchy(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			mixer, err := NewPostMixer(tt.postWeights)
+			filterer, err := NewPostFilterer(tt.postWeights)
 
 			if err != nil {
-				t.Fatalf("failed to create mixer: %v", err)
+				t.Fatalf("failed to create filterer: %v", err)
 			}
 
-			result := mixer.MixPosts(tt.posts)
+			result := filterer.FilterPosts(tt.posts)
 
 			if !reflect.DeepEqual(result, tt.want) {
 				t.Errorf("got %v, want %v (lengths of %v and %v)", result, tt.want, len(result), len(tt.want))

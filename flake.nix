@@ -20,7 +20,7 @@
         });
       in {
         packages.default = pkgs.buildGoModule {
-          name = "post-mixer";
+          name = "post-filterer";
           src = ./.;
           vendorHash = null;
           doCheck = true;

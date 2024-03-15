@@ -47,14 +47,14 @@ func (parentWeight PostWeight) AddChildren(orphans []PostWeight) []PostWeight {
 	return childWeights
 }
 
-type PostMixer struct {
+type PostFilterer struct {
 	PostWeights      []PostWeight
 	ratiosByCategory map[string]float64
 }
 
-func NewPostMixer(postWeights []PostWeight) (*PostMixer, error) {
+func NewPostFilterer(postWeights []PostWeight) (*PostFilterer, error) {
 	if len(postWeights) == 0 {
-		return nil, errors.New("PostMixer has to have at least one post weight")
+		return nil, errors.New("PostFilterer has to have at least one post weight")
 	}
 
 	ratiosByCategory := make(map[string]float64)
@@ -63,48 +63,48 @@ func NewPostMixer(postWeights []PostWeight) (*PostMixer, error) {
 		ratiosByCategory[weight.PostCategory] = weight.Ratio
 	}
 
-	mixer := &PostMixer{
+	filterer := &PostFilterer{
 		PostWeights:      postWeights,
 		ratiosByCategory: ratiosByCategory,
 	}
 
-	return mixer, nil
+	return filterer, nil
 }
 
-func (mixer *PostMixer) filterIrrelevantPosts(posts []Post) []Post {
-	filteredPosts := []Post{}
+func (filterer *PostFilterer) dropIrrelevantPosts(posts []Post) []Post {
+	relevantPosts := []Post{}
 
 	for _, post := range posts {
-		_, isRelevant := mixer.ratiosByCategory[post.Category]
+		_, isRelevant := filterer.ratiosByCategory[post.Category]
 
 		if isRelevant {
-			filteredPosts = append(filteredPosts, post)
+			relevantPosts = append(relevantPosts, post)
 		}
 	}
 
-	return filteredPosts
+	return relevantPosts
 }
 
-func (mixer *PostMixer) getPostCountsByCategory(posts []Post) map[string]int {
+func (filterer *PostFilterer) getPostCountsByCategory(posts []Post) map[string]int {
 	postCountsByCategory := make(map[string]int)
 
-	for category, ratio := range mixer.ratiosByCategory {
+	for category, ratio := range filterer.ratiosByCategory {
 		postCountsByCategory[category] = int(ratio * float64(len(posts)))
 	}
 
 	return postCountsByCategory
 }
 
-func (mixer *PostMixer) MixPosts(posts []Post) []Post {
-	filteredPosts := mixer.filterIrrelevantPosts(posts)
+func (filterer *PostFilterer) FilterPosts(posts []Post) []Post {
+	relevantPosts := filterer.dropIrrelevantPosts(posts)
 
-	if len(mixer.ratiosByCategory) == 1 {
-		return filteredPosts
+	if len(filterer.ratiosByCategory) == 1 {
+		return relevantPosts
 	}
 
-	postCountsByCategory := mixer.getPostCountsByCategory(filteredPosts)
+	postCountsByCategory := filterer.getPostCountsByCategory(relevantPosts)
 
-	mixedPosts := []Post{}
+	filteredPosts := []Post{}
 
 	for _, post := range posts {
 		postCount, hasCount := postCountsByCategory[post.Category]
@@ -117,11 +117,11 @@ func (mixer *PostMixer) MixPosts(posts []Post) []Post {
 			continue
 		}
 
-		mixedPosts = append(mixedPosts, post)
+		filteredPosts = append(filteredPosts, post)
 		postCountsByCategory[post.Category] = postCount - 1
 	}
 
-	return mixedPosts
+	return filteredPosts
 }
 
 func mergeWeights(arrays ...[]PostWeight) []PostWeight {
@@ -133,7 +133,7 @@ func mergeWeights(arrays ...[]PostWeight) []PostWeight {
 }
 
 func main() {
-	mixingWeights := mergeWeights(
+	weights := mergeWeights(
 		NewPostWeight("top", 0.2).AddChildren([]PostWeight{
 			NewPostWeight("daily", 0.5),
 			NewPostWeight("weekly", 0.3),
@@ -150,10 +150,10 @@ func main() {
 		}),
 	)
 
-	mixer, err := NewPostMixer(mixingWeights)
+	filterer, err := NewPostFilterer(weights)
 
 	if err != nil {
-		log.Fatalf("creating mixer failed: %v", err)
+		log.Fatalf("creating filterer failed: %v", err)
 		return
 	}
 
@@ -181,7 +181,7 @@ func main() {
 		NewPost("exclusive-discount-code", "promoted"),
 	}
 
-	mixedPosts := mixer.MixPosts(posts)
+	filteredPosts := filterer.FilterPosts(posts)
 
-	log.Printf("%v", mixedPosts)
+	log.Printf("%v", filteredPosts)
 }

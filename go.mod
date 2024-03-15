@@ -1,4 +1,4 @@
-module post-mixer
+module post-filterer
 
 go 1.20
 
