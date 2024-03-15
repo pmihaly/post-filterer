@@ -20,6 +20,7 @@
           name = "post-mixer";
           src = ./.;
           vendorHash = null;
+          doCheck = true;
         };
 
         checks = {
