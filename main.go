@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"fmt"
 )
 
 type Post struct {
@@ -30,6 +31,19 @@ func NewPostGroup(category string, ratio float64) PostGroup {
 	}
 
 	return group
+}
+
+func (parentGroup PostGroup) AddChildren(orphans []PostGroup) []PostGroup {
+	childGroups := []PostGroup{}
+
+	for _, orphan := range orphans {
+		category := fmt.Sprintf("%v/%v", parentGroup.PostCategory, orphan.PostCategory)
+		ratio := orphan.Ratio * parentGroup.Ratio
+
+		childGroups = append(childGroups, NewPostGroup(category, ratio))
+	}
+
+	return childGroups
 }
 
 type PostMixer struct {

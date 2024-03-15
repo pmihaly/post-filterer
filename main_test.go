@@ -18,7 +18,7 @@ func TestMixerCreationFailsWithNoPostGroups(t *testing.T) {
 
 }
 
-func TestBasic(t *testing.T) {
+func TestFlatHierarchy(t *testing.T) {
 	var tests = []struct {
 		name       string
 		postGroups []PostGroup
@@ -94,5 +94,25 @@ func TestBasic(t *testing.T) {
 				t.Errorf("got %v, want %v (lengths of %v and %v)", result, tt.want, len(result), len(tt.want))
 			}
 		})
+	}
+}
+
+func TestAddingChildren(t *testing.T) {
+	deepHierarchy := []PostGroup{
+		NewPostGroup("trending", 0.5),
+	}
+
+	deepHierarchy = append(deepHierarchy,
+		NewPostGroup("following", 0.5).AddChildren([]PostGroup{NewPostGroup("immediate-follow", 0.6), NewPostGroup("follow-of-follow", 0.4)})...,
+	)
+
+	flatHierarchy := []PostGroup{
+		NewPostGroup("trending", 0.5),
+		NewPostGroup("following/immediate-follow", 0.3),
+		NewPostGroup("following/follow-of-follow", 0.2),
+	}
+
+	if !reflect.DeepEqual(deepHierarchy, flatHierarchy) {
+		t.Errorf("got %v, want %v", deepHierarchy, flatHierarchy)
 	}
 }
