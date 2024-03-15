@@ -1,24 +1,49 @@
 package main
 
 import (
-	"fmt"
+	"reflect"
 	"testing"
 )
 
+func TestMixerCreationFailsWithNoCategories(t *testing.T) {
+	mixer, err := NewPostMixer([]Category{})
+
+	if mixer != nil {
+		t.Errorf("got %v, want %v", mixer, nil)
+	}
+
+	if err == nil {
+		t.Errorf("got %v, want non-nil error", err)
+	}
+
+}
+
 func TestBasic(t *testing.T) {
 	var tests = []struct {
-		x    bool
-		want bool
+		name       string
+		categories []Category
+		posts      []Post
+		want       []Post
 	}{
-		{true, true},
-		{false, false},
+		{"no posts", []Category{{}}, []Post{}, []Post{}},
 	}
 
 	for _, tt := range tests {
-		testname := fmt.Sprintf("%t", tt.x)
-		t.Run(testname, func(t *testing.T) {
-			if tt.x != tt.want {
-				t.Errorf("got %t, want %t", tt.x, tt.want)
+		t.Run(tt.name, func(t *testing.T) {
+			mixer, err := NewPostMixer(tt.categories)
+
+			if err != nil {
+				t.Fatalf("failed to create mixer: %v", err)
+			}
+
+			result, err := mixer.MixPosts(tt.posts)
+
+			if err != nil {
+				t.Fatalf("failed to mix posts: %v", err)
+			}
+
+			if !reflect.DeepEqual(result, tt.want) {
+				t.Errorf("got %t, want %t", result, tt.want)
 			}
 		})
 	}
