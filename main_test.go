@@ -39,9 +39,11 @@ func TestFlatHierarchy(t *testing.T) {
 			NewPost("ricks-vacation", "following"),
 			NewPost("lisas-puppy", "trending"),
 			NewPost("theprimagen-shilling-rust", "hot"),
+			NewPost("definetly-a-linux-iso-torrent", "trending"),
 		}, []Post{
 			NewPost("ricks-vacation", "following"),
 			NewPost("lisas-puppy", "trending"),
+			NewPost("definetly-a-linux-iso-torrent", "trending"),
 		}},
 		{"2 categories split by 50-50", []PostWeight{NewPostWeight("trending", 0.5), NewPostWeight("following", 0.5)}, []Post{
 			NewPost("ricks-vacation", "following"),
